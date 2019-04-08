@@ -1,5 +1,5 @@
-# CS113-HW10-HashTable
-## HW #10 for CS113 - HashTableChain w/ Map
+# CS113-HW9-HashTable
+## HW #9 for CS113 - HashTableChain w/ Map
 
 Complete the `HashTableChain` from lecture/book (Section 7.4) so that it fully implements the [`java.util.Map`](https://docs.oracle.com/javase/7/docs/api/java/util/Map.html) interface (you may only omit/stub out the `putAll()` and `values()` methods, all other methods must be implemented).
 
