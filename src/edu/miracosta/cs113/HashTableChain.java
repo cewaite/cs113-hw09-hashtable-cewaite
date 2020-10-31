@@ -8,18 +8,34 @@ public class HashTableChain<T, T1> implements Map<T, T1>
     {
         Map<String, Integer> hashTable = new HashTableChain<>();
 
-        /** Helper method using Map's put() to place a given number of unique key-value pairs into this Map. */
-        for (int i = 0; i < 10; i++) {
-            hashTable.put(Integer.toString(i), i);
-        }
+//        /** Helper method using Map's put() to place a given number of unique key-value pairs into this Map. */
+//        for (int i = 0; i < 10; i++) {
+//            hashTable.put(Integer.toString(i), i);
+//        }
+//
+//        System.out.println(hashTable.toString());
+//
+//        hashTable.clear();
+//
+//        System.out.println(hashTable.toString());
+//        System.out.println(hashTable.size());
+//        System.out.println(hashTable.isEmpty());
 
-        System.out.println(hashTable.toString());
+        hashTable.put("one", 1);
+        hashTable.put("two", 2);
+        hashTable.put("three", 3);
 
-        hashTable.clear();
+        // Because order is arbitrary, expect one of the following outputs from this Set's toString
+        String[] expectedSets = { "[one=1, two=2, three=3]", "[one=1, three=3, two=2]", "[two=2, one=1, three=3]",
+                "[two=2, three=3, one=1]", "[three=3, one=1, two=2]", "[three=3, two=2, one=1]" };
 
-        System.out.println(hashTable.toString());
-        System.out.println(hashTable.size());
-        System.out.println(hashTable.isEmpty());
+        String setString = hashTable.entrySet().toString();
+
+        boolean validSet = setString.equals(expectedSets[0]) || setString.equals(expectedSets[1]) ||
+                setString.equals(expectedSets[2]) || setString.equals(expectedSets[3]) ||
+                setString.equals(expectedSets[4]) || setString.equals(expectedSets[5]);
+
+        System.out.println("Test entrySet failed - invalid value returned by Set's toString: " + setString + " " + validSet);
     }
 
     private LinkedList<Entry<T, T1>>[] table;
@@ -84,18 +100,18 @@ public class HashTableChain<T, T1> implements Map<T, T1>
         table = new LinkedList[CAPACITY];
     }
 
-    public String toString()
-    {
-        String string = "";
-        for (int i = 0; i < CAPACITY; i++)
-        {
-            if (table[i] != null)
-            {
-                string += table[i].element().getKey();
-            }
-        }
-        return string;
-    }
+//    public String toString()
+//    {
+//        String string = "";
+//        for (int i = 0; i < CAPACITY; i++)
+//        {
+//            if (table[i] != null)
+//            {
+//                string += table[i].element().getKey();
+//            }
+//        }
+//        return string;
+//    }
 
     @Override
     public int size() {
@@ -113,43 +129,39 @@ public class HashTableChain<T, T1> implements Map<T, T1>
         {
             return true;
         }
-
-        if (!(o instanceof HashTableChain))
+        if (!(o instanceof Hashtable))
         {
             return false;
         }
 
-        HashTableChain c = (HashTableChain) o;
+        Hashtable c = (Hashtable) o;
 
-        return this.entrySet() == c.entrySet() && this.keySet() == c.keySet();
+        if (c.size() != this.size())
+        {
+            return false;
+        }
+
+        for (int i = 0; i < CAPACITY; i++)
+        {
+            if (table[i] != null)
+            {
+                for (Entry<T, T1> nextItem : table[i])
+                {
+                    if (!(c.containsKey(nextItem.getKey())))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+//        return this.size() == c.size() && this.keySet() == c.keySet();
+
+        return true;
     }
 
     @Override
     public boolean containsKey(Object key) {
-//        int index = 0;
-//
-//        if (table[index] == null)
-//        {
-//            return false;
-//        }
-//
-//        for (Entry<T, T1> nextItem : table[index])
-//        {
-//            if (nextItem.getKey().equals(key))
-//            {
-//                return true;
-//            }
-//            index++;
-//        }
-//
-//        return false;
-
-//        if (this.get(key) != null)
-//        {
-//            return true;
-//        }
-//        return false;
-
         for (int i = 0; i < CAPACITY; i++)
         {
             if (table[i] != null)
@@ -169,24 +181,6 @@ public class HashTableChain<T, T1> implements Map<T, T1>
 
     @Override
     public boolean containsValue(Object value) {
-//        int index = 0;
-//
-//        if (table[index] == null)
-//        {
-//            return false;
-//        }
-//
-//        for (Entry<T, T1> nextItem : table[index])
-//        {
-//            if (nextItem.getValue().equals(value))
-//            {
-//                return true;
-//            }
-//            index++;
-//        }
-//
-//        return false;
-
         for (int i = 0; i < CAPACITY; i++)
         {
             if (table[i] != null)
@@ -250,10 +244,6 @@ public class HashTableChain<T, T1> implements Map<T, T1>
 
         table[index].addFirst(new Entry<T, T1>(key, value));
         numKeys++;
-//        if (numKeys > (LOAD_THRESHOLD * table.length))
-//        {
-//            rehash();
-//        }
         return null;
     }
 
@@ -275,10 +265,6 @@ public class HashTableChain<T, T1> implements Map<T, T1>
             {
                 T1 oldVal = (T1) nextItem.getValue();
                 numKeys--;
-//                if (table[index].isEmpty())
-//                {
-//                    table[index] = null;
-//                }
                 table[index] = null;
                 return oldVal;
             }
@@ -318,15 +304,6 @@ public class HashTableChain<T, T1> implements Map<T, T1>
 
     @Override
     public Set<T> keySet() {
-//        int index = 0;
-//
-//        Set<T> keySet = new HashSet<>();
-//        for (Entry<T, T1> nextItem : table[index])
-//        {
-//            keySet.add((T) nextItem.getKey());
-//            index++;
-//        }
-
         Set<T> keySet = new HashSet<>();
         for (int i = 0; i < CAPACITY; i++)
         {
@@ -367,75 +344,64 @@ public class HashTableChain<T, T1> implements Map<T, T1>
             return new SetIterator();
         }
 
-//        public String toString()
-//        {
-//            String string = "";
-//            LinkedList<Entry<T, T1>>[] tempTable = new LinkedList[numKeys];
-//
-//            for (int i = 0; i < CAPACITY; i++)
-//            {
-//                if (table[i] != null)
-//                {
-//                    for (Entry<T, T1> nextItem : table[i])
-//                    {
-//                        tempTable[i] = nextItem;
-////                        if (i == 0)
-////                        {
-////                            string += "[" + nextItem.getKey() + "=" + nextItem.getValue() + ",";
-////                        }
-////                        else if
-//                    }
-//                }
-//            }
-//
-//            return string;
-//        }
+        public String toString()
+        {
+            String string = "[";
+            Iterator<Map.Entry<T, T1>> it = iterator();
+
+            while (it.hasNext())
+            {
+                Entry nextItem = (Entry) it.next();
+                if (nextItem != null)
+                {
+                    string += ", " + nextItem.getKey() + "=" + nextItem.getValue();
+                    it.remove();
+                }
+            }
+
+            string = string.replaceFirst(", ", "");
+            string += "]";
+            return string;
+        }
     }
 
     private class SetIterator implements Iterator
     {
         private int index = 0;
-        private Entry lastItemReturned;
+        private Entry lastItemReturned = null;
 
         public SetIterator() {}
 
         @Override
         public boolean hasNext() {
-            return index < CAPACITY; // && table[index] != null;
+            return index < CAPACITY;
         }
 
         @Override
         public Object next() {
-//            for (int i = index; i < CAPACITY; i++)
-//            {
-//                if (table[i] != null)
-//                {
-//                    for (Entry<T, T1> nextItem : table[i])
-//                    {
-//
-//                    }
-//                }
-//            }
-            while (hasNext())
-            {
+            do {
                 if (table[index] != null)
                 {
-                    lastItemReturned = table[index++].element();
+                    lastItemReturned = table[index].element();
+                    index++;
                     return lastItemReturned;
                 }
                 else
                 {
                     index++;
                 }
-            }
+            } while (lastItemReturned == null && hasNext());
 
             return null;
         }
 
         public void remove()
         {
-            table[index] = null;
-//            lastItemReturned = null;
+            if (lastItemReturned != null)
+            {
+                table[index] = null;
+                lastItemReturned = null;
+            }
         }
     }
 }
